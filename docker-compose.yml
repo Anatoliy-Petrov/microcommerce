@@ -1,0 +1,339 @@
+networks:
+  microcommerce:
+    driver: bridge
+
+volumes:
+  mysql_auth_data:
+  mysql_user_data:
+  mysql_catalog_data:
+  mysql_order_data:
+  mysql_payment_data:
+  mysql_notification_data:
+  mysql_analytics_data:
+  redis_data:
+  rabbitmq_data:
+  elasticsearch_data:
+
+services:
+
+  # ── Infrastructure ───────────────────────────────────────────────
+
+  mysql-auth:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${AUTH_DB_PASSWORD}
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: ${AUTH_DB_PASSWORD}
+    volumes:
+      - mysql_auth_data:/var/lib/mysql
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-user:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${USER_DB_PASSWORD}
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: user_user
+      MYSQL_PASSWORD: ${USER_DB_PASSWORD}
+    volumes:
+      - mysql_user_data:/var/lib/mysql
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-catalog:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${CATALOG_DB_PASSWORD}
+      MYSQL_DATABASE: catalog_db
+      MYSQL_USER: catalog_user
+      MYSQL_PASSWORD: ${CATALOG_DB_PASSWORD}
+    volumes:
+      - mysql_catalog_data:/var/lib/mysql
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-order:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ORDER_DB_PASSWORD}
+      MYSQL_DATABASE: order_db
+      MYSQL_USER: order_user
+      MYSQL_PASSWORD: ${ORDER_DB_PASSWORD}
+    volumes:
+      - mysql_order_data:/var/lib/mysql
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-payment:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${PAYMENT_DB_PASSWORD}
+      MYSQL_DATABASE: payment_db
+      MYSQL_USER: payment_user
+      MYSQL_PASSWORD: ${PAYMENT_DB_PASSWORD}
+    volumes:
+      - mysql_payment_data:/var/lib/mysql
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-notification:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+      MYSQL_DATABASE: notification_db
+      MYSQL_USER: notification_user
+      MYSQL_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+    volumes:
+      - mysql_notification_data:/var/lib/mysql
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql-analytics:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${ANALYTICS_DB_PASSWORD}
+      MYSQL_DATABASE: analytics_db
+      MYSQL_USER: analytics_user
+      MYSQL_PASSWORD: ${ANALYTICS_DB_PASSWORD}
+    volumes:
+      - mysql_analytics_data:/var/lib/mysql
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: >
+      sh -c "if [ -n \"$$REDIS_PASSWORD\" ];
+             then redis-server --requirepass $$REDIS_PASSWORD;
+             else redis-server;
+             fi"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    volumes:
+      - redis_data:/data
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+
+  elasticsearch:
+    image: elasticsearch:8.13.4
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - xpack.security.enabled=true
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "${ELASTICSEARCH_PORT}:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks: [microcommerce]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -u elastic:$$ELASTIC_PASSWORD http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  # ── Application Services ─────────────────────────────────────────
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    env_file: ./services/auth-service/.env
+    ports:
+      - "${AUTH_SERVICE_PORT}:8000"
+    volumes:
+      - ./services/auth-service:/var/www/html
+      - ./shared/php-common:/var/www/shared/php-common
+    networks: [microcommerce]
+    depends_on:
+      mysql-auth:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  user-service:
+    build:
+      context: ./services/user-service
+      dockerfile: Dockerfile
+    env_file: ./services/user-service/.env
+    ports:
+      - "${USER_SERVICE_PORT}:8000"
+    volumes:
+      - ./services/user-service:/var/www/html
+      - ./shared/php-common:/var/www/shared/php-common
+    networks: [microcommerce]
+    depends_on:
+      mysql-user:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  catalog-service:
+    build:
+      context: ./services/catalog-service
+      dockerfile: Dockerfile
+    env_file: ./services/catalog-service/.env
+    ports:
+      - "${CATALOG_SERVICE_PORT}:8000"
+    volumes:
+      - ./services/catalog-service:/var/www/html
+      - ./shared/php-common:/var/www/shared/php-common
+    networks: [microcommerce]
+    depends_on:
+      mysql-catalog:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+  cart-service:
+    build:
+      context: ./services/cart-service
+      dockerfile: Dockerfile
+    env_file: ./services/cart-service/.env
+    ports:
+      - "${CART_SERVICE_PORT}:8000"
+    volumes:
+      - ./services/cart-service:/var/www/html
+      - ./shared/php-common:/var/www/shared/php-common
+    networks: [microcommerce]
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+
+  order-service:
+    build:
+      context: ./services/order-service
+      dockerfile: Dockerfile
+    env_file: ./services/order-service/.env
+    ports:
+      - "${ORDER_SERVICE_PORT}:8000"
+    volumes:
+      - ./services/order-service:/var/www/html
+      - ./shared/php-common:/var/www/shared/php-common
+    networks: [microcommerce]
+    depends_on:
+      mysql-order:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  payment-service:
+    build:
+      context: ./services/payment-service
+      dockerfile: Dockerfile
+    env_file: ./services/payment-service/.env
+    ports:
+      - "${PAYMENT_SERVICE_PORT}:8000"
+    volumes:
+      - ./services/payment-service:/var/www/html
+      - ./shared/php-common:/var/www/shared/php-common
+    networks: [microcommerce]
+    depends_on:
+      mysql-payment:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    env_file: ./services/notification-service/.env
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:8000"
+    volumes:
+      - ./services/notification-service:/var/www/html
+      - ./shared/php-common:/var/www/shared/php-common
+    networks: [microcommerce]
+    depends_on:
+      mysql-notification:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+
+  analytics-service:
+    build:
+      context: ./services/analytics-service
+      dockerfile: Dockerfile
+    env_file: ./services/analytics-service/.env
+    ports:
+      - "${ANALYTICS_SERVICE_PORT}:8000"
+    volumes:
+      - ./services/analytics-service:/var/www/html
+      - ./shared/php-common:/var/www/shared/php-common
+    networks: [microcommerce]
+    depends_on:
+      mysql-analytics:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy

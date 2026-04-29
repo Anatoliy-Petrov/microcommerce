@@ -1,0 +1,23 @@
+# Env files with secrets (keep .env.example, ignore .env)
+.env
+services/**/.env
+
+# Composer
+vendor/
+*/vendor/
+
+# PHP
+*.log
+*.cache
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker overrides
+docker-compose.override.yml
