@@ -13,6 +13,14 @@ volumes:
   redis_data:
   rabbitmq_data:
   elasticsearch_data:
+  auth_var:
+  user_var:
+  catalog_var:
+  cart_var:
+  order_var:
+  payment_var:
+  notification_var:
+  analytics_var:
 
 services:
 
@@ -25,6 +33,8 @@ services:
       MYSQL_DATABASE: auth_db
       MYSQL_USER: auth_user
       MYSQL_PASSWORD: ${AUTH_DB_PASSWORD}
+    ports:
+      - "${AUTH_DB_PORT:-33061}:3306"
     volumes:
       - mysql_auth_data:/var/lib/mysql
     networks: [microcommerce]
@@ -41,6 +51,8 @@ services:
       MYSQL_DATABASE: user_db
       MYSQL_USER: user_user
       MYSQL_PASSWORD: ${USER_DB_PASSWORD}
+    ports:
+      - "${USER_DB_PORT:-33062}:3306"
     volumes:
       - mysql_user_data:/var/lib/mysql
     networks: [microcommerce]
@@ -57,6 +69,8 @@ services:
       MYSQL_DATABASE: catalog_db
       MYSQL_USER: catalog_user
       MYSQL_PASSWORD: ${CATALOG_DB_PASSWORD}
+    ports:
+      - "${CATALOG_DB_PORT:-33063}:3306"
     volumes:
       - mysql_catalog_data:/var/lib/mysql
     networks: [microcommerce]
@@ -73,6 +87,8 @@ services:
       MYSQL_DATABASE: order_db
       MYSQL_USER: order_user
       MYSQL_PASSWORD: ${ORDER_DB_PASSWORD}
+    ports:
+      - "${ORDER_DB_PORT:-33064}:3306"
     volumes:
       - mysql_order_data:/var/lib/mysql
     networks: [microcommerce]
@@ -89,6 +105,8 @@ services:
       MYSQL_DATABASE: payment_db
       MYSQL_USER: payment_user
       MYSQL_PASSWORD: ${PAYMENT_DB_PASSWORD}
+    ports:
+      - "${PAYMENT_DB_PORT:-33065}:3306"
     volumes:
       - mysql_payment_data:/var/lib/mysql
     networks: [microcommerce]
@@ -105,6 +123,8 @@ services:
       MYSQL_DATABASE: notification_db
       MYSQL_USER: notification_user
       MYSQL_PASSWORD: ${NOTIFICATION_DB_PASSWORD}
+    ports:
+      - "${NOTIFICATION_DB_PORT:-33066}:3306"
     volumes:
       - mysql_notification_data:/var/lib/mysql
     networks: [microcommerce]
@@ -121,6 +141,8 @@ services:
       MYSQL_DATABASE: analytics_db
       MYSQL_USER: analytics_user
       MYSQL_PASSWORD: ${ANALYTICS_DB_PASSWORD}
+    ports:
+      - "${ANALYTICS_DB_PORT:-33067}:3306"
     volumes:
       - mysql_analytics_data:/var/lib/mysql
     networks: [microcommerce]
@@ -194,6 +216,7 @@ services:
     volumes:
       - ./services/auth-service:/var/www/html
       - ./shared/php-common:/var/www/shared/php-common
+      - auth_var:/var/www/html/var
     networks: [microcommerce]
     depends_on:
       mysql-auth:
@@ -213,6 +236,7 @@ services:
     volumes:
       - ./services/user-service:/var/www/html
       - ./shared/php-common:/var/www/shared/php-common
+      - user_var:/var/www/html/var
     networks: [microcommerce]
     depends_on:
       mysql-user:
@@ -232,6 +256,7 @@ services:
     volumes:
       - ./services/catalog-service:/var/www/html
       - ./shared/php-common:/var/www/shared/php-common
+      - catalog_var:/var/www/html/var
     networks: [microcommerce]
     depends_on:
       mysql-catalog:
@@ -253,6 +278,7 @@ services:
     volumes:
       - ./services/cart-service:/var/www/html
       - ./shared/php-common:/var/www/shared/php-common
+      - cart_var:/var/www/html/var
     networks: [microcommerce]
     depends_on:
       redis:
@@ -270,6 +296,7 @@ services:
     volumes:
       - ./services/order-service:/var/www/html
       - ./shared/php-common:/var/www/shared/php-common
+      - order_var:/var/www/html/var
     networks: [microcommerce]
     depends_on:
       mysql-order:
@@ -289,6 +316,7 @@ services:
     volumes:
       - ./services/payment-service:/var/www/html
       - ./shared/php-common:/var/www/shared/php-common
+      - payment_var:/var/www/html/var
     networks: [microcommerce]
     depends_on:
       mysql-payment:
@@ -308,6 +336,7 @@ services:
     volumes:
       - ./services/notification-service:/var/www/html
       - ./shared/php-common:/var/www/shared/php-common
+      - notification_var:/var/www/html/var
     networks: [microcommerce]
     depends_on:
       mysql-notification:
@@ -327,6 +356,7 @@ services:
     volumes:
       - ./services/analytics-service:/var/www/html
       - ./shared/php-common:/var/www/shared/php-common
+      - analytics_var:/var/www/html/var
     networks: [microcommerce]
     depends_on:
       mysql-analytics:

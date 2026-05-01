@@ -1,0 +1,24 @@
+auth_register:
+    path:       /auth/register
+    controller: App\Controller\AuthController::register
+    methods:    [POST]
+
+auth_login:
+    path:       /auth/login
+    controller: App\Controller\AuthController::login
+    methods:    [POST]
+
+auth_refresh:
+    path:       /auth/refresh
+    controller: App\Controller\AuthController::refresh
+    methods:    [POST]
+
+auth_logout:
+    path:       /auth/logout
+    controller: App\Controller\AuthController::logout
+    methods:    [POST]
+
+auth_validate:
+    path:       /auth/validate
+    controller: App\Controller\AuthController::validate
+    methods:    [GET]

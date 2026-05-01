@@ -20,6 +20,7 @@ RUN docker-php-ext-install \
         intl \
         pcntl \
         opcache \
+        sockets \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && rm -rf /tmp/pear
@@ -30,7 +31,8 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN chown -R www-data:www-data /var/www/html
+RUN mkdir -p var/cache var/log \
+    && chown -R www-data:www-data /var/www/html
 
 USER www-data
 

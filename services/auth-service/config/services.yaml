@@ -1,0 +1,24 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    Predis\Client:
+        arguments:
+            -
+                scheme: tcp
+                host: '%env(REDIS_HOST)%'
+                port: '%env(int:REDIS_PORT)%'
+
+    App\Service\EventPublisherService:
+        arguments:
+            $rabbitmqUrl: '%env(RABBITMQ_URL)%'

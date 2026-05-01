@@ -1,0 +1,6 @@
+/vendor/
+/var/
+/config/jwt/private.pem
+/.env.local
+/.env.local.php
+/.env.*.local
