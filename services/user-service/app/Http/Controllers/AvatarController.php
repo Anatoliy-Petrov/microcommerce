@@ -15,10 +15,6 @@ final class AvatarController extends Controller
 
     public function store(Request $request, string $id): JsonResponse
     {
-        if ($id !== (string) $request->header('X-User-Id')) {
-            return $this->error([['message' => 'Forbidden']], 403);
-        }
-
         $file = $request->file('avatar');
         if ($file === null) {
             return $this->error([['field' => 'avatar', 'message' => 'Avatar file is required']], 422);
@@ -37,10 +33,6 @@ final class AvatarController extends Controller
 
     public function destroy(Request $request, string $id): JsonResponse
     {
-        if ($id !== (string) $request->header('X-User-Id')) {
-            return $this->error([['message' => 'Forbidden']], 403);
-        }
-
         $profile = Profile::findOrFail($id);
         $this->avatarService->delete($profile);
 

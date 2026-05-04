@@ -1,0 +1,26 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+
+final class EnsureOwnership
+{
+    public function handle(Request $request, Closure $next): Response
+    {
+        $id = $request->route('id');
+
+        if ($id !== (string) $request->header('X-User-Id')) {
+            return response()->json(
+                ['data' => null, 'meta' => (object) [], 'errors' => [['message' => 'Forbidden']]],
+                Response::HTTP_FORBIDDEN,
+            );
+        }
+
+        return $next($request);
+    }
+}

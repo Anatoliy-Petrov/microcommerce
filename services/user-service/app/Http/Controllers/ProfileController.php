@@ -17,29 +17,17 @@ final class ProfileController extends Controller
 
     public function show(Request $request, string $id): JsonResponse
     {
-        $profile = $this->profileService->getPublic($id);
-
-        return $this->success(new ProfilePublicResource($profile));
+        return $this->success(new ProfilePublicResource($this->profileService->getPublic($id)));
     }
 
     public function showPrivate(Request $request, string $id): JsonResponse
     {
-        try {
-            $profile = $this->profileService->getPrivate($id, (string) $request->header('X-User-Id'));
-        } catch (\DomainException $e) {
-            return $this->error([['message' => 'Forbidden']], 403);
-        }
-
-        return $this->success(new ProfilePrivateResource($profile));
+        return $this->success(new ProfilePrivateResource($this->profileService->getPrivate($id)));
     }
 
     public function update(UpdateProfileRequest $request, string $id): JsonResponse
     {
-        try {
-            $profile = $this->profileService->update($id, (string) $request->header('X-User-Id'), $request->validated());
-        } catch (\DomainException $e) {
-            return $this->error([['message' => 'Forbidden']], 403);
-        }
+        $profile = $this->profileService->update($id, $request->validated());
 
         return $this->success(new ProfilePrivateResource($profile));
     }

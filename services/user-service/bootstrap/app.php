@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'require.user_id' => \App\Http\Middleware\RequireUserId::class,
+            'owner'           => \App\Http\Middleware\EnsureOwnership::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
