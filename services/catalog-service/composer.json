@@ -1,0 +1,54 @@
+{
+    "name": "microcommerce/catalog-service",
+    "description": "Product catalog microservice",
+    "type": "project",
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^11.0",
+        "laravel/scout": "^10.0",
+        "laravel/horizon": "^5.0",
+        "elasticsearch/elasticsearch": "^8.0",
+        "php-amqplib/php-amqplib": "^3.7",
+        "microcommerce/php-common": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0",
+        "fakerphp/faker": "^1.23",
+        "mockery/mockery": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../shared/php-common"
+        }
+    ],
+    "scripts": {
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ]
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        },
+        "platform": {
+            "php": "8.3"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

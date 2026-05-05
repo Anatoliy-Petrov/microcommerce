@@ -1,0 +1,5 @@
+/vendor/
+/storage/app/public/products/
+/storage/logs/*.log
+/bootstrap/cache/*.php
+.env.local

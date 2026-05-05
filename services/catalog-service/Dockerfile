@@ -7,11 +7,15 @@ RUN apk add --no-cache \
         libxml2-dev \
         libzip-dev \
         icu-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
         curl \
         unzip \
         git
 
-RUN docker-php-ext-install \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
         pdo_mysql \
         mbstring \
         xml \
@@ -20,6 +24,8 @@ RUN docker-php-ext-install \
         intl \
         pcntl \
         opcache \
+        gd \
+        sockets \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && rm -rf /tmp/pear
@@ -30,7 +36,13 @@ WORKDIR /var/www/html
 
 COPY . .
 
-RUN chown -R www-data:www-data /var/www/html
+RUN mkdir -p storage/app/public \
+              storage/framework/cache/data \
+              storage/framework/sessions \
+              storage/framework/views \
+              storage/logs \
+              bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html
 
 USER www-data
 

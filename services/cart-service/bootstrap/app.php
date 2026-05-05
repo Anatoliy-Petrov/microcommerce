@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        api: __DIR__.'/../routes/api.php',
+        apiPrefix: '',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'require.user_id' => \App\Http\Middleware\RequireUserId::class,
+            'owner'           => \App\Http\Middleware\EnsureOwnership::class,
+        ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->render(function (ValidationException $e, Request $request) {
+            $errors = [];
+            foreach ($e->errors() as $field => $messages) {
+                foreach ($messages as $message) {
+                    $errors[] = ['field' => $field, 'message' => $message];
+                }
+            }
+            return response()->json(['data' => null, 'meta' => (object) [], 'errors' => $errors], 422);
+        });
+    })
+    ->create();
