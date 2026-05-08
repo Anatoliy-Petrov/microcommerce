@@ -1,0 +1,6 @@
+gateway:
+    path:       /{path}
+    controller: App\Controller\GatewayController::proxy
+    requirements:
+        path: '.*'
+    methods:    [GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD]

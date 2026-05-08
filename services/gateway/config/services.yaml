@@ -1,0 +1,27 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+
+    App\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+        public: true
+
+    App\Service\RouteResolverService:
+        arguments:
+            $upstreamMap:
+                auth:     '%env(UPSTREAM_AUTH)%'
+                users:    '%env(UPSTREAM_USER)%'
+                products: '%env(UPSTREAM_CATALOG)%'
+                categories: '%env(UPSTREAM_CATALOG)%'
+                carts:    '%env(UPSTREAM_CART)%'
+                orders:   '%env(UPSTREAM_ORDER)%'
+                payments: '%env(UPSTREAM_PAYMENT)%'
+
+    App\Service\JwtValidatorService:
+        arguments:
+            $publicKeyPath: '%env(JWT_PUBLIC_KEY_PATH)%'

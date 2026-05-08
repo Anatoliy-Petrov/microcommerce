@@ -23,7 +23,11 @@ final readonly class TokenService
     public function createTokenPair(User $user): array
     {
         $jti         = bin2hex(random_bytes(16));
-        $accessToken = $this->jwtManager->createFromPayload($user, ['jti' => $jti]);
+        $accessToken = $this->jwtManager->createFromPayload($user, [
+            'jti'    => $jti,
+            'userId' => (string) $user->getId(),
+            'role'   => $user->getRole()->value,
+        ]);
 
         $rawRefresh   = bin2hex(random_bytes(64));
         $hash         = hash('sha256', $rawRefresh);

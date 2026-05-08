@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -24,6 +25,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255)]
     private string $passwordHash;
+
+    #[ORM\Column(type: 'string', length: 20, enumType: UserRole::class)]
+    private UserRole $role = UserRole::User;
 
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
@@ -60,6 +64,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->passwordHash = $hash;
     }
 
+    public function getRole(): UserRole
+    {
+        return $this->role;
+    }
+
+    public function setRole(UserRole $role): void
+    {
+        $this->role = $role;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::Admin;
+    }
+
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
@@ -85,7 +104,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        return match ($this->role) {
+            UserRole::Admin => ['ROLE_ADMIN', 'ROLE_USER'],
+            UserRole::User  => ['ROLE_USER'],
+        };
     }
 
     public function eraseCredentials(): void {}
