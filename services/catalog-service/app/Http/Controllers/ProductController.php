@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateProductRequest;
-use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
+use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,11 +36,11 @@ final class ProductController extends Controller
 
     public function search(Request $request): JsonResponse
     {
-        $query    = (string) $request->query('q', '');
-        $perPage  = (int) $request->query('per_page', 20);
-        $page     = (int) $request->query('page', 1);
+        $query   = (string) $request->query('q', '');
+        $perPage = (int) $request->query('per_page', 20);
+        $page    = (int) $request->query('page', 1);
 
-        $results  = \App\Models\Product::search($query)->paginate($perPage, 'page', $page);
+        $results = Product::search($query)->paginate($perPage, 'page', $page);
 
         return $this->successPaginated(
             data:        ProductResource::collection($results->items()),
@@ -49,26 +48,5 @@ final class ProductController extends Controller
             perPage:     $results->perPage(),
             currentPage: $results->currentPage(),
         );
-    }
-
-    public function store(CreateProductRequest $request): JsonResponse
-    {
-        $product = $this->productService->create($request->validated());
-
-        return $this->success(new ProductResource($product), 201);
-    }
-
-    public function update(UpdateProductRequest $request, string $id): JsonResponse
-    {
-        $product = $this->productService->update($id, $request->validated());
-
-        return $this->success(new ProductResource($product));
-    }
-
-    public function destroy(string $id): JsonResponse
-    {
-        $this->productService->delete($id);
-
-        return $this->success(null, 204);
     }
 }

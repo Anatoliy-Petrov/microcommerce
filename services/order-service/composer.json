@@ -1,0 +1,51 @@
+{
+    "name": "microcommerce/order-service",
+    "description": "Order lifecycle management with Symfony Workflow",
+    "type": "project",
+    "require": {
+        "php": "^8.3",
+        "doctrine/doctrine-bundle": "^2.12",
+        "doctrine/doctrine-migrations-bundle": "^3.3",
+        "doctrine/orm": "^3.2",
+        "php-amqplib/php-amqplib": "^3.7",
+        "symfony/framework-bundle": "^7.2",
+        "symfony/runtime": "^7.2",
+        "symfony/uid": "^7.2",
+        "symfony/workflow": "^7.2",
+        "symfony/yaml": "^7.2",
+        "microcommerce/php-common": "*"
+    },
+    "require-dev": {
+        "dama/doctrine-test-bundle": "^8.2",
+        "phpunit/phpunit": "^11.0",
+        "symfony/browser-kit": "^7.2",
+        "symfony/http-client": "^7.2",
+        "symfony/phpunit-bridge": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\Tests\\": "tests/"
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../shared/php-common"
+        }
+    ],
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "symfony/runtime": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

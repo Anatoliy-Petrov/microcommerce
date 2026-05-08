@@ -1,0 +1,24 @@
+order_show:
+    path:       /orders/{id}
+    controller: App\Controller\OrderController::show
+    methods:    [GET]
+
+order_list:
+    path:       /orders
+    controller: App\Controller\OrderController::list
+    methods:    [GET]
+
+order_cancel:
+    path:       /orders/{id}/cancel
+    controller: App\Controller\OrderController::cancel
+    methods:    [POST]
+
+order_timeline:
+    path:       /orders/{id}/timeline
+    controller: App\Controller\OrderController::timeline
+    methods:    [GET]
+
+order_ship:
+    path:       /orders/{id}/ship
+    controller: App\Controller\OrderController::ship
+    methods:    [POST]

@@ -11,6 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         api: __DIR__.'/../routes/api.php',
         apiPrefix: '',
+        then: function () {
+            \Illuminate\Support\Facades\Route::middleware('api')
+                ->prefix('')
+                ->group(base_path('routes/admin.php'));
+        },
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([

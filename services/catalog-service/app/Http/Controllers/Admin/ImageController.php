@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\ImageService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 final class ImageController extends Controller
 {
@@ -30,7 +32,7 @@ final class ImageController extends Controller
 
         return $this->success([
             'id'        => $image->id,
-            'url'       => \Illuminate\Support\Facades\Storage::disk('public')->url($image->url),
+            'url'       => Storage::disk('public')->url($image->url),
             'isPrimary' => $image->is_primary,
             'sortOrder' => $image->sort_order,
         ], 201);
