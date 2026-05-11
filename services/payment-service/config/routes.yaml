@@ -1,0 +1,14 @@
+payment_checkout:
+    path:       /payments/checkout-session
+    controller: App\Controller\PaymentController::checkout
+    methods:    [POST]
+
+payment_show:
+    path:       /payments/{orderId}
+    controller: App\Controller\PaymentController::show
+    methods:    [GET]
+
+webhook_receive:
+    path:       /webhooks/{provider}
+    controller: App\Controller\WebhookController::receive
+    methods:    [POST]

@@ -34,6 +34,9 @@ final readonly class RouteResolverService
             str_starts_with($path, '/products')   && $method === 'GET' => true,
             str_starts_with($path, '/categories') && $method === 'GET' => true,
 
+            // Payment provider webhooks — signature verified by each provider, no JWT
+            str_starts_with($path, '/webhooks') => true,
+
             default => false,
         };
     }

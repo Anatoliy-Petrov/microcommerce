@@ -1,0 +1,39 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Provider\PaypalProvider:
+        arguments:
+            $clientId:     '%env(PAYPAL_CLIENT_ID)%'
+            $clientSecret: '%env(PAYPAL_CLIENT_SECRET)%'
+            $mode:         '%env(PAYPAL_MODE)%'
+        tags: ['app.payment_provider']
+
+    App\Provider\FastSpringProvider:
+        arguments:
+            $apiUrl:     '%env(FASTSPRING_API_URL)%'
+            $username:   '%env(FASTSPRING_USERNAME)%'
+            $password:   '%env(FASTSPRING_PASSWORD)%'
+            $hmacSecret: '%env(FASTSPRING_HMAC_SECRET)%'
+            $storefront:  '%env(FASTSPRING_STOREFRONT)%'
+            $httpClient:  '@http_client'
+        tags: ['app.payment_provider']
+
+    App\Service\PaymentProviderRegistry:
+        arguments:
+            $providers: !tagged_iterator app.payment_provider
+
+    App\Service\EventPublisherService:
+        arguments:
+            $rabbitmqUrl: '%env(RABBITMQ_URL)%'
+
+    App\Service\EventConsumerService:
+        arguments:
+            $rabbitmqUrl: '%env(RABBITMQ_URL)%'
